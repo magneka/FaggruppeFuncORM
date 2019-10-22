@@ -22,7 +22,7 @@ const myDb = require('./sqLiteRepository.js');
         ]
   }
 
-  var dbFileName = './demodb03.db'
+  var dbFileName = '/Users/magnealvheim/Documents/Source/FagGruppe221019/FaggruppeFuncORM/FagGruppe.db'
   let db = new sqlite3.Database(dbFileName)
 
   let repositoryFactory = myDb.getRepositoryFactory(db)
@@ -32,14 +32,14 @@ const myDb = require('./sqLiteRepository.js');
   employeeRepository.displayQueries()
 
   // Create tables
-  // await companyRepository.create()
-  // await employeeRepository.create()
+  await companyRepository.create()
+  await employeeRepository.create()
 
   // Insert
-  // let newCompany = await companyRepository.insert({ CompanyName: 'Sotra Tepperens og VideoUtleie' })
+  let newCompany = await companyRepository.insert({ CompanyName: 'Sotra Tepperens og VideoUtleie' })
 
-  // let newEmpA1 = await employeeRepository.insert({ Id: 10, CompanyId: newCompany.Id })
-  // console.log(`newEmp01 created: `, newEmpA1)
+  let newEmpA1 = await employeeRepository.insert({ Id: 10, CompanyId: newCompany.Id })
+  console.log(`newEmp01 created: `, newEmpA1)
   
   // Test update
   // let newEmpA2 = await employeeRepository.selectById(newEmpA1.Id)

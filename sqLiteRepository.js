@@ -5,26 +5,60 @@ exports.getRepositoryFactory = db => (fields, table) => {
   // ----------------------------------------------------------------------------------------
 
   // getIdField
+  const getIdField = () => fields.map((f) => f.fieldName).shift()
   // getNonIdFields
+  const getNonIdFields = () => fields.map((f) => f.fieldName).slice(1)
   // getAllFields
+  const getAllFields = () => fields.map((f) => f.fieldName)
 
   // transform json object to array with fields in correct order for insert and update
   // getParmsInOrder
+  const getParmsInOrder = (jsonObj, forUpdate = false) => {
+      const validFieldNames = getNonIdFields(fields)
+  
+      let paramArr = validFieldNames.reduce(
+        (res, fieldname) => {
+          if (jsonObj.hasOwnProperty(fieldname)) 
+            res.push(jsonObj[fieldname])
+          else 
+            res.push(null)
+          return res
+        }
+      , [])
+  
+      if (forUpdate) {
+        paramArr.push(jsonObj[getIdField()])
+      }
+  
+      return paramArr
+    }
 
   // ----------------------------------------------------------------------------------------
   // Generators for SQL Statements
   // ----------------------------------------------------------------------------------------
 
   // getCreateStatement
+  const getCreateStatement = () => fields.reduce((res, x, i) => {
+      if (i === 0) {
+        return `${res}${x.fieldName} integer primary key`
+      } else if (i !== fields.length - 1) {
+        return `${res}, ${x.fieldName} ${x.dataType}`
+      } else {
+        return `${res}, ${x.fieldName} ${x.dataType})`
+      }
+    }, [`CREATE TABLE IF NOT EXISTS ${table} (`])
   
   // getSelectStatement             - select a, b, .. from table
+  const getSelectStatement = () => `SELECT ${getAllFields().join(', ')} FROM ${table}`
   // getSelectStatementById         - select a, b, .. from table where id = 1
   // getSelectStatementIn           - select a, b, .. from table where a in 1, 2, 3
   // getSelectStatementByFieldName  - select a, b, .. from table where b = 1
   // getInsertStatement             - insert into table (a, b, c) values (1, 2, 3)
+  const getInsertStatement = () => `INSERT INTO ${table} (${getNonIdFields().join(', ')}) VALUES (` + getNonIdFields().map(() => '?').join(', ') + ')'
   // getUpdateByIdStatement         - update table set b=1, c=2 where id = 1 
   // getDeleteByIdStatement         - delete from table where a = 1
   // getLastId                      - select rowid from table order by rowid desc limit 1
+  const getLastId = () => `SELECT rowid from ${table} order by ROWID DESC limit 1`
   
   // ----------------------------------------------------------------------------------------
   // DB driver calls
@@ -50,7 +84,12 @@ exports.getRepositoryFactory = db => (fields, table) => {
   // ----------------------------------------------------------------------------------------
 
   // createTable
+  const createTable = async () => await dbRun(getCreateStatement(), [])
   // insert
+  const insert = async (jsonObj) => { 
+    await dbSingle(getInsertStatement(), getParmsInOrder(jsonObj)); 
+    let newId = await dbSingle(getLastId()); 
+    return { ...jsonObj, [getIdField()]: newId.Id } }
   // selectAll
   // selectWherId
   // selectWherIn
@@ -66,7 +105,7 @@ exports.getRepositoryFactory = db => (fields, table) => {
     // console.log('getNonIdFields:', getNonIdFields())
     // console.log('getSelectStatementByFieldName:', getSelectStatementByFieldName('LastName'))
     // console.log('getSelectStatementById:', getSelectStatementById())
-    // console.log('getInsertStatement:', getInsertStatement())
+    console.log('getInsertStatement:', getInsertStatement())
     // console.log('getUpdateStatement:', getUpdateByIdStatement())
     // console.log('getDeleteStatementById:', getDeleteByIdStatement())
     // console.log('getCreateStatement:', getCreateStatement())
@@ -77,8 +116,8 @@ exports.getRepositoryFactory = db => (fields, table) => {
     // selectById: selectWherId,
     // selectWhereIn: selectWherIn,
     // selectByField: selectWhereField,
-    // create: createTable,
-    // insert: insert,
+    create: createTable,
+    insert: insert,
     // update: updateById,
     // delete: deleteById,
     displayQueries: logQueries,
