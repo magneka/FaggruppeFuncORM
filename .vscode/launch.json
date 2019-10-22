@@ -13,6 +13,12 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Kjør RunRepository mac",
+      "program": "${workspaceFolder}/runRepository.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Start restapi",
       "program": "${workspaceFolder}\\restserver.js"
     }

@@ -42,22 +42,22 @@ const myDb = require('./sqLiteRepository.js');
   console.log(`newEmp01 created: `, newEmpA1)
   
   // Test update
-  // let newEmpA2 = await employeeRepository.selectById(newEmpA1.Id)
-  // console.log(`newEmpR retrieved: `, newEmpA2)
-  // await employeeRepository.update({ ...newEmpA1, FirstName: 'Sherlock', LastName: 'Holmes' })
-  // let newEmpA3 = await employeeRepository.selectById(newEmpA1.Id)
-  // console.log(`newEmpR2 updated: `, newEmpA3)
+  let newEmpA2 = await employeeRepository.selectById(newEmpA1.Id)
+   console.log(`newEmpR retrieved: `, newEmpA2)
+  await employeeRepository.update({ ...newEmpA1, FirstName: 'Sherlock', LastName: 'Holmes' })
+  let newEmpA3 = await employeeRepository.selectById(newEmpA1.Id)
+  console.log(`newEmpR2 updated: `, newEmpA3)
 
   // Test delete
-  // await employeeRepository.delete(newEmpA1.Id)
-  // let deletedEmp = await employeeRepository.selectById(newEmpA1.Id)
-  // if (deletedEmp === undefined) console.log(`Record Id ${newEmpA1.Id} no longer exists..`)
+  await employeeRepository.delete(newEmpA1.Id)
+  let deletedEmp = await employeeRepository.selectById(newEmpA1.Id)
+  if (deletedEmp === undefined) console.log(`Record Id ${newEmpA1.Id} no longer exists..`)
 
   // Test select where in list
-  // let inItems = await employeeRepository.selectWhereIn([1, 2, 54, 55, 56])
-  // console.log(`inItems: `, inItems)
+  let inItems = await employeeRepository.selectWhereIn([1, 2, 54, 55, 56])
+  console.log(`inItems: `, inItems)
 
-  // console.log('And were done!')
+  console.log('And were done!')
 })().catch(e => {
   console.log('Error', e)
 })

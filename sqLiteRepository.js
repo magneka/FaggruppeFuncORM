@@ -51,12 +51,17 @@ exports.getRepositoryFactory = db => (fields, table) => {
   // getSelectStatement             - select a, b, .. from table
   const getSelectStatement = () => `SELECT ${getAllFields().join(', ')} FROM ${table}`
   // getSelectStatementById         - select a, b, .. from table where id = 1
+  const getSelectStatementById = () => `${getSelectStatement()} WHERE ${getIdField()} = ?`
   // getSelectStatementIn           - select a, b, .. from table where a in 1, 2, 3
+  const getSelectStatementIn = (parm) => `${getSelectStatement()} WHERE ${getIdField()} in (${parm.map(() => '?').join(', ')})`
   // getSelectStatementByFieldName  - select a, b, .. from table where b = 1
+  const getSelectStatementByFieldName = (searchBy) => `${getSelectStatement()} WHERE ${searchBy} = ?`
   // getInsertStatement             - insert into table (a, b, c) values (1, 2, 3)
   const getInsertStatement = () => `INSERT INTO ${table} (${getNonIdFields().join(', ')}) VALUES (` + getNonIdFields().map(() => '?').join(', ') + ')'
   // getUpdateByIdStatement         - update table set b=1, c=2 where id = 1 
+  const getUpdateByIdStatement = () => `UPDATE ${table} SET ${getNonIdFields().map((f) => f + ' = ?').join(', ')}  WHERE ${getIdField()} = ?`
   // getDeleteByIdStatement         - delete from table where a = 1
+  const getDeleteByIdStatement = () => `DELETE FROM ${table} WHERE ${getIdField()} = ?`
   // getLastId                      - select rowid from table order by rowid desc limit 1
   const getLastId = () => `SELECT rowid from ${table} order by ROWID DESC limit 1`
   
@@ -91,38 +96,44 @@ exports.getRepositoryFactory = db => (fields, table) => {
     let newId = await dbSingle(getLastId()); 
     return { ...jsonObj, [getIdField()]: newId.Id } }
   // selectAll
+  const selectAll = async () => await dbAll(getSelectStatement(), [])
   // selectWherId
+  const selectWherId = async (id) => await dbSingle(getSelectStatementById(), [id])
   // selectWherIn
+  const selectWherIn = async (parm) => await dbAll(getSelectStatementIn(parm), parm)
   // selectWhereField 
+  const selectWhereField = async (field, parm) => await dbAll(getSelectStatementByFieldName(field), parm)
   // updateById
+  const updateById = async (jsonObj) => dbRun(await getUpdateByIdStatement(), getParmsInOrder(jsonObj, true))
   // deleteById 
+  const deleteById = async (id) => dbRun(await getDeleteByIdStatement(), [id])
 
   const logQueries = () => {
     console.log('==================================================================')
     console.log('fields', fields)
     console.log('tablename', table)
-    // console.log('getIdField:', getIdField())
-    // console.log('getNonIdFields:', getNonIdFields())
-    // console.log('getSelectStatementByFieldName:', getSelectStatementByFieldName('LastName'))
-    // console.log('getSelectStatementById:', getSelectStatementById())
+    console.log('getIdField:', getIdField())
+    console.log('getNonIdFields:', getNonIdFields())
+    console.log('getSelectStatementByFieldName:', getSelectStatementByFieldName('LastName'))
+    console.log('getSelectStatementById:', getSelectStatementById())
     console.log('getInsertStatement:', getInsertStatement())
-    // console.log('getUpdateStatement:', getUpdateByIdStatement())
-    // console.log('getDeleteStatementById:', getDeleteByIdStatement())
-    // console.log('getCreateStatement:', getCreateStatement())
+    console.log('getUpdateStatement:', getUpdateByIdStatement())
+    console.log('getDeleteStatementById:', getDeleteByIdStatement())
+    console.log('getCreateStatement:', getCreateStatement())
   }
 
   return {
-    // selectAll: selectAll,
-    // selectById: selectWherId,
-    // selectWhereIn: selectWherIn,
-    // selectByField: selectWhereField,
+    selectAll: selectAll,
+    selectById: selectWherId,
+    selectWhereIn: selectWherIn,
+    selectByField: selectWhereField,
     create: createTable,
     insert: insert,
-    // update: updateById,
-    // delete: deleteById,
+    update: updateById,
+    delete: deleteById,
     displayQueries: logQueries,
-    // dbRun: dbRun,
-    // dbSingle: dbSingle,
-    // dbAll: dbAll
+    dbRun: dbRun,
+    dbSingle: dbSingle,
+    dbAll: dbAll
   }
 }
