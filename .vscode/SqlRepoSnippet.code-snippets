@@ -1,0 +1,307 @@
+{
+	// Place your FaggruppeFunctional workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"Anonymous arrow functionap": {
+		"prefix": "_afa",
+		"body": [
+			"(${1:param}) => ${1:param}.${1:prop}"
+		],
+		"description": "Anonymous arrow function"
+	},
+  "Arrow function": {
+		"prefix": "_af",
+		"body": [
+			"const ${1:name} = () => ``"
+		],
+		"description": "Arrow function"
+	},
+	"Arrow function with parameters": {
+		"prefix": "_afp",
+		"body": [
+			"const ${1:name} = ${2:param} => ``"
+		],
+		"description": "Arrow function with parameters"
+	},
+	"Javascript function": {
+		"prefix": "_jsf",
+		"body": [
+			"function ${1:name}(${3:params}) {",
+			"  ${4:Body}",
+			"}"
+		],
+		"description": "Javascript function"
+	},
+	"getIdField": {
+		"prefix": "_getIdField",
+		"body": [
+			"const getIdField = () => fields.map((f) => f.fieldName).shift()"
+		],
+		"description": "getIdField"
+	},
+	"getNonIdFields": {
+		"prefix": "_getNonIdFields",
+		"body": [
+			"const getNonIdFields = () => fields.map((f) => f.fieldName).slice(1)"
+		],
+		"description": "getNonIdFields"
+	},
+	"getAllFields": {
+		"prefix": "_getAllFields",
+		"body": [
+			"const getAllFields = () => fields.map((f) => f.fieldName)"
+		],
+		"description": "getAllFields"
+	},
+	"getParmsInOrder": {
+		"prefix": "_getParmsInOrder",
+		"body": [
+			"const getParmsInOrder = (jsonObj, forUpdate = false) => {",
+			"    const validFieldNames = getNonIdFields(fields)",
+			"",
+			"    let paramArr = validFieldNames.reduce((res, fieldname) => {",
+			"      if (jsonObj.hasOwnProperty(fieldname)) res.push(jsonObj[fieldname])",
+			"      else res.push(null)",
+			"      return res",
+			"    }, [])",
+			"",
+			"    if (forUpdate) {",
+			"      paramArr.push(jsonObj[getIdField()])",
+			"    }",
+			"",
+			"    return paramArr",
+			"  }"
+		],
+		"description": "getParmsInOrder"
+	},
+	"getCreateStatement": {
+		"prefix": "_getCreateStatement",
+		"body": [
+			"const getCreateStatement = () => fields.reduce((res, x, i) => {",
+			"    if (i === 0) {",
+			"      return `\\${res}${x.fieldName} integer primary key`",
+			"    } else if (i !== fields.length - 1) {",
+			"      return `\\${res}, ${x.fieldName} ${x.dataType}`",
+			"    } else {",
+			"      return `\\${res}, ${x.fieldName} ${x.dataType})`",
+			"    }",
+			"  }, [`CREATE TABLE IF NOT EXISTS \\${table} (`])"
+		],
+		"description": "getCreateStatement"
+	},
+	"getSelectStatement": {
+		"prefix": "_getSelectStatement",
+		"body": [
+			"const getSelectStatement = () => `SELECT \\${getAllFields().join(', ')} FROM \\${table}`"
+		],
+		"description": "getSelectStatement"
+	},
+	"getSelectStatementById": {
+		"prefix": "_getSelectStatementById",
+		"body": [
+			"const getSelectStatementById = () => `\\${getSelectStatement()} WHERE \\${getIdField()} = ?`"
+		],
+		"description": "getSelectStatementById"
+	},
+	"getSelectStatementIn": {
+		"prefix": "_getSelectStatementIn",
+		"body": [
+			"const getSelectStatementIn = (parm) => `\\${getSelectStatement()} WHERE \\${getIdField()} in (\\${parm.map(() => '?').join(', ')})`"
+		],
+		"description": "getSelectStatementIn"
+	},
+	"getSelectStatementByFieldName": {
+		"prefix": "_getSelectStatementByFieldName",
+		"body": [
+			"const getSelectStatementByFieldName = (searchBy) => `\\${getSelectStatement()} WHERE \\${searchBy} = ?`"
+		],
+		"description": "getSelectStatementByFieldName"
+	},
+	"getInsertStatement": {
+		"prefix": "_getInsertStatement",
+		"body": [
+			"const getInsertStatement = () => `INSERT INTO \\${table} (${getNonIdFields().join(', ')}) VALUES (` + getNonIdFields().map(() => '?').join(', ') + ')'"
+		],
+		"description": "getInsertStatement"
+	},
+	"getUpdateByIdStatement": {
+		"prefix": "_getUpdateByIdStatement",
+		"body": [
+			"const getUpdateByIdStatement = () => `UPDATE ${table} SET \\${getNonIdFields().map((f) => f + ' = ?').join(', ')}  WHERE \\${getIdField()} = ?`"
+		],
+		"description": "getUpdateByIdStatement"
+	},
+	"getDeleteByIdStatement": {
+		"prefix": "_getDeleteByIdStatement",
+		"body": [
+			"const getDeleteByIdStatement = () => `DELETE FROM \\${table} WHERE \\${getIdField()} = ?`"
+		],
+		"description": "getDeleteByIdStatement"
+	},
+	"getLastId": {
+		"prefix": "_getLastId",
+		"body": [
+			"const getLastId = () => `SELECT rowid from \\${table} order by ROWID DESC limit 1`"
+		],
+		"description": "getLastId"
+	},
+	"dbRun": {
+		"prefix": "_dbRun",
+		"body": [
+			"const dbRun = async (query, parameters) => new Promise((resolve, reject) => {",
+			"    db.run(query, parameters, (err, rows) => { if (err) reject(err); resolve(rows) })",
+			"  })"
+		],
+		"description": "dbRun"
+	},
+	"dbFunction": {
+		"prefix": "_dbFunction",
+		"body": [
+			"const db${1:run_single_all} = async (query, parameters) => new Promise((resolve, reject) => {",
+			"    db.{2:run_ret_all}(query, parameters, (err, rows) => { if (err) reject(err); resolve(rows) })",
+			"  })"
+		],
+		"description": "dbFuction"
+	},
+	"selectAll": {
+		"prefix": "_selectAll",
+		"body": [
+			"const selectAll = async () => await dbAll(getSelectStatement(), [])"
+		],
+		"description": "selectAll"
+	},
+	"selectWherId": {
+		"prefix": "_selectWherId",
+		"body": [
+			"const selectWherId = async (id) => await dbSingle(getSelectStatementById(), [id])"
+		],
+		"description": "selectWherId"
+	},
+	"selectWherIn": {
+		"prefix": "_selectWherIn",
+		"body": [
+			"const selectWherIn = async (parm) => await dbAll(getSelectStatementIn(parm), parm)"
+		],
+		"description": "selectWherIn"
+	},
+	"selectWhereField": {
+		"prefix": "_selectWhereField",
+		"body": [
+			"const selectWhereField = async (field, parm) => await dbAll(getSelectStatementByFieldName(field), parm)"
+		],
+		"description": "selectWhereField"
+	},
+	"createTable": {
+		"prefix": "_createTable",
+		"body": [
+			"const createTable = async () => await dbRun(getCreateStatement(), [])"
+		],
+		"description": "createTable"
+	},
+	"insert": {
+		"prefix": "_insert",
+		"body": [
+			"const insert = async (jsonObj) => { await dbSingle(getInsertStatement(), getParmsInOrder(jsonObj)); let newId = await dbSingle(getLastId()); return { ...jsonObj, [getIdField()]: newId.Id } }"
+		],
+		"description": "insert"
+	},
+	"updateById": {
+		"prefix": "_updateById",
+		"body": [
+			"const updateById = async (jsonObj) => dbRun(await getUpdateByIdStatement(), getParmsInOrder(jsonObj, true))"
+		],
+		"description": "updateById"
+	},
+	"deleteById": {
+		"prefix": "_deleteById",
+		"body": [
+			"const deleteById = async (id) => dbRun(await getDeleteByIdStatement(), [id])"
+		],
+		"description": "deleteById"
+	},
+	"repositoryFactory": {
+		"prefix": "_repositoryFactory",
+		"body": [
+			"exports.getRepositoryFactory = db => (fields, table) => {",
+			"  // ----------------------------------------------------------------------------------------",
+			"  // Fields lists",
+			"  // ----------------------------------------------------------------------------------------",
+			"",
+			"  // getIdField",
+			"  // getNonIdFields",
+			"  // getAllFields",
+			"",
+			"  // getParmsInOrder",
+			"  ",
+			"  // ----------------------------------------------------------------------------------------",
+			"  // Generators for SQL Statements",
+			"  // ----------------------------------------------------------------------------------------",
+			"",
+			"  // getCreateStatement",
+			"",
+			"  // getSelectStatement             - select a, b, .. from table",
+			"  // getSelectStatementById         - select a, b, .. from table where id = 1",
+			"  // getSelectStatementIn           - select a, b, .. from table where a in 1, 2, 3",
+			"  // getSelectStatementByFieldName  - select a, b, .. from table where b = 1",
+			"  // getInsertStatement             - insert into table (a, b, c) values (1, 2, 3)",
+			"  // getUpdateByIdStatement         - update table set b=1, c=2 where id = 1 ",
+			"  // getDeleteByIdStatement         - delete from table where a = 1",
+			"  // getLastId                      - select rowid from table order by rowid desc limit 1",
+			"",
+			"  // ----------------------------------------------------------------------------------------",
+			"  // DB driver calls",
+			"  // ----------------------------------------------------------------------------------------",
+			"",
+			"  // ----------------------------------------------------------------------------------------",
+			"  // Exported functions",
+			"  // ----------------------------------------------------------------------------------------",
+			"",
+			"  // createTable",
+			"  // insert",
+			"  // selectAll",
+			"  // selectWherId",
+			"  // selectWherIn",
+			"  // selectWhereField ",
+			"  // updateById",
+			"  // deleteById ",
+			"",
+			"  const logQueries = () => {",
+			"    console.log('==================================================================')",
+			"    console.log('fields', fields)    ",
+			"  }",
+			"",
+			"  return {",
+			"    // create: createTable,   ",
+			"  }",
+			"}",
+			""
+		],
+		"description": "repositoryFactory"
+	},
+	"repositoryFactorymin": {
+		"prefix": "_repositoryFactory01",
+		"body": [
+			"exports.getRepositoryFactory = db => (fields, table) => {",
+			"  return {",
+			"     log: console.log (db, fields, table)",
+			"  }",
+			"}",
+			""
+		],
+		"description": "repositoryFactorymin"
+	}
+
+}

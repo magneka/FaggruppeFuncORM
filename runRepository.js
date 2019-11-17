@@ -22,21 +22,38 @@ const myDb = require('./sqLiteRepository.js');
         ]
   }
 
+  const usersDef = {
+    tableName: 'Users',
+    fields:
+          [
+            { fieldName: 'Id', dataType: 'Integer' },
+            { fieldName: 'Name', dataType: 'Varchar(50)' },
+            { fieldName: 'Address', dataType: 'Varchar(50)' },
+            { fieldName: 'PostalCode', dataType: 'Varchar(5)' },
+            { fieldName: 'PostalCity', dataType: 'Varchar(50)' },
+            { fieldName: 'Phone', dataType: 'Varchar(15)' },
+          ]
+  }
+
   var dbFileName = './demodb03.db'
   let db = new sqlite3.Database(dbFileName)
 
   let repositoryFactory = myDb.getRepositoryFactory(db)
   let employeeRepository = repositoryFactory(employeeDef.fields, employeeDef.tableName)
   let companyRepository = repositoryFactory(CompanyDef.fields, CompanyDef.tableName)
+  let usersRepository = repositoryFactory(usersDef.fields, usersDef.tableName)
   companyRepository.displayQueries()
   employeeRepository.displayQueries()
 
   // Create tables
-  // await companyRepository.create()
-  // await employeeRepository.create()
+  await companyRepository.create()
+  await employeeRepository.create()
+
+  await usersRepository.create()
 
   // Insert
   // let newCompany = await companyRepository.insert({ CompanyName: 'Sotra Tepperens og VideoUtleie' })
+  let newUser =  await usersRepository.insert({ Name: 'Magne Alvheim', Address: 'Nordåshøgda 33', PostalCode: '5035', PostalCity: 'Rådal', Phone: '922 17 270' })
 
   // let newEmpA1 = await employeeRepository.insert({ Id: 10, CompanyId: newCompany.Id })
   // console.log(`newEmp01 created: `, newEmpA1)
